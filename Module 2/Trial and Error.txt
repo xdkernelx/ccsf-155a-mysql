@@ -1,0 +1,45 @@
+Task 1
+
+Select first, last, job
+from vt_staff
+
+OK
+
+Task 2
+Select instances and create aliases
+From vt_animals
+Order by an_dob;
+
+OK
+
+Task 3
+Select DISTINCT an_type
+from vt_animals;
+
+OK
+
+Task 4
+Select items, creating aliases unclear
+From vt_services
+Order by srv_type, srv_list_price
+
+Task 5
+Select items, create aliases
+From vt_exam_details
+ORDER BY ex_id, ex_fee;
+
+Task 6
+Select DISTINCT items, create asliases if needed
+From vt_animals
+ORDER BY an_type, an_name;
+
+Task 7
+Select items, create aliases
+from vt_exam_headers
+Order by stf_id, ex_date;
+
+Task 8
+Select DISTINCT state, city
+From blah blah
+Order by state, city;
+

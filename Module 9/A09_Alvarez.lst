@@ -1,0 +1,243 @@
+--------------
+/* Nestor Alvarez */
+
+    /* enable warnings! */
+
+use bkorders
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+--------------
+/*  TASK 00 */ 
+select user(), current_date(), version(), @@sql_mode
+--------------
+
+*************************** 1. row ***************************
+        user(): root@localhost
+current_date(): 2016-04-07
+     version(): 5.7.11-log
+    @@sql_mode: STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+1 row in set (0.12 sec)
+
+--------------
+/*  TASK 01 */
+Select sum(order_price * quantity) AS AmtDue 
+From bkorders.order_details 
+WHERE book_id = 1108
+--------------
+
++----------+
+| AmtDue   |
++----------+
+| 28410.30 |
++----------+
+1 row in set (0.00 sec)
+
+--------------
+/*  TASK 02 */
+Select count(*) AS NumberOfOrders 
+From bkorders.order_details 
+WHERE book_id = 1108 AND order_id IN 
+  (
+	Select order_id 
+    From bkorders.order_details 
+    JOIN bkorders.order_headers USING (order_id) 
+    WHERE YEAR(order_date) = YEAR(date_sub(current_date, interval 1 year))
+  )
+--------------
+
++----------------+
+| NumberOfOrders |
++----------------+
+|              1 |
++----------------+
+1 row in set (0.00 sec)
+
+--------------
+/*  TASK 03 */
+Select cust_id AS CustID, cust_name_last AS CustName, count(*) AS BookTotal
+ , count(case when YEAR(order_date) = YEAR(current_date) then 1 else null end) AS CurrentYearBookTotal 
+From bkorders.customers 
+JOIN bkorders.order_headers USING (cust_id) 
+GROUP BY cust_id
+--------------
+
++--------+--------------+-----------+----------------------+
+| CustID | CustName     | BookTotal | CurrentYearBookTotal |
++--------+--------------+-----------+----------------------+
+| 200368 | Blake        |         7 |                    4 |
+| 208950 | Adams        |         2 |                    1 |
+| 211483 | Carroll      |         5 |                    0 |
+| 212921 | Books on Tap |        11 |                    7 |
+| 217796 | Anders       |        11 |                    7 |
+| 218709 | Bonnard      |        11 |                    5 |
+| 221297 | Dodgson      |         8 |                    2 |
+| 222477 | Rossetti     |        18 |                    7 |
+| 224038 | Austin       |         5 |                    3 |
+| 226656 | Randall      |         3 |                    0 |
+| 227105 | Kafka        |        22 |                    7 |
+| 228175 | Cardin       |         3 |                    1 |
+| 234138 | Keats        |         8 |                    4 |
+| 234709 | Brahms       |         3 |                    3 |
+| 239427 | Marksa       |        12 |                    6 |
+| 258595 | Jobs         |         2 |                    0 |
+| 259906 | Capybara     |        10 |                    3 |
+| 259969 | Carlsen      |         4 |                    2 |
+| 260368 | Muller       |         5 |                    3 |
+| 261502 | Hawthorne    |        25 |                   13 |
+| 263119 | Jones        |         5 |                    2 |
+| 267780 | Shelly       |        24 |                    9 |
+| 272611 | Jarrett      |         4 |                    3 |
+| 272787 | Carlson      |        23 |                    5 |
+| 276381 | Collins      |         7 |                    5 |
+| 282716 | Biederbecke  |        18 |                    3 |
+| 290298 | Swift        |        17 |                    7 |
+| 296598 | Collins      |         1 |                    0 |
+| 299099 | Sam          |         3 |                    2 |
++--------+--------------+-----------+----------------------+
+29 rows in set (0.00 sec)
+
+--------------
+/*  TASK 04 */
+Select count(*) AS PrevYearTotalOrders, count(distinct cust_id) AS CustomerCount 
+From bkorders.customers 
+JOIN bkorders.order_headers USING (cust_id) 
+WHERE YEAR(order_date) = YEAR(date_sub(current_date, interval 1 quarter)) 
+	AND QUARTER(order_date) = QUARTER(date_sub(current_date, interval 1 quarter))
+--------------
+
++---------------------+---------------+
+| PrevYearTotalOrders | CustomerCount |
++---------------------+---------------+
+|                  85 |            25 |
++---------------------+---------------+
+1 row in set (0.00 sec)
+
+--------------
+/*  TASK 05 */
+Select BK.book_id, title 
+From bkinfo.books BK 
+JOIN bkorders.order_details OD USING (book_id) 
+WHERE book_id IN 
+  (
+	Select book_id 
+    From bkinfo.book_topics 
+    JOIN bkinfo.books USING (book_id) 
+    WHERE topic_id IN ('NOSQL', 'XML', 'DB')
+  )
+GROUP BY BK.book_id 
+HAVING count(*) = 42
+--------------
+
++---------+----------------------------------------+
+| book_id | title                                  |
++---------+----------------------------------------+
+|    1128 | Temporal Data and the Relational Model |
++---------+----------------------------------------+
+1 row in set (0.00 sec)
+
+--------------
+/*  TASK 06 */
+Select sum(case when topic_id = 'SCI' then 1 else 0 end) AS Science
+, sum(case when topic_id = 'DB' then 1 when topic_id = 'SQL' then 1 when topic_id = 'SSRV' then 1 
+			when topic_id = 'MySQL' then 1 when topic_id = 'ORA' then 1 when topic_id = 'ADO' then 1 else 0 end) AS 'Database System'
+, sum(case when topic_id = 'NOSQL' then 1 when topic_id = 'XML' then 1 when topic_id = 'DB' then 1 else 0 end) AS 'Data Storage Techniques'
+, sum(case when topic_id IS NOT NULL then 1 else 0 end) AS 'All Books' 
+From bkinfo.book_topics BT 
+JOIN bkinfo.books BK USING (book_id)
+--------------
+
++---------+-----------------+-------------------------+-----------+
+| Science | Database System | Data Storage Techniques | All Books |
++---------+-----------------+-------------------------+-----------+
+|      22 |              57 |                      12 |       120 |
++---------+-----------------+-------------------------+-----------+
+1 row in set (0.00 sec)
+
+--------------
+/*  TASK 07 */
+Select CS.cust_id as CustID, cust_name_last AS CustName, max(order_date) AS MostRecentOrder 
+From bkorders.customers CS 
+JOIN bkorders.order_headers OH USING (cust_id) 
+JOIN bkorders.order_details OD USING (order_id) 
+GROUP BY CS.cust_id
+--------------
+
++--------+--------------+-----------------+
+| CustID | CustName     | MostRecentOrder |
++--------+--------------+-----------------+
+| 200368 | Blake        | 2016-07-28      |
+| 208950 | Adams        | 2016-03-28      |
+| 211483 | Carroll      | 2015-11-24      |
+| 212921 | Books on Tap | 2016-03-22      |
+| 217796 | Anders       | 2016-05-06      |
+| 218709 | Bonnard      | 2016-03-25      |
+| 221297 | Dodgson      | 2016-05-06      |
+| 222477 | Rossetti     | 2016-08-12      |
+| 224038 | Austin       | 2016-03-23      |
+| 226656 | Randall      | 2015-08-25      |
+| 227105 | Kafka        | 2016-06-30      |
+| 228175 | Cardin       | 2016-02-20      |
+| 234138 | Keats        | 2016-03-08      |
+| 234709 | Brahms       | 2016-03-22      |
+| 239427 | Marksa       | 2016-03-31      |
+| 258595 | Jobs         | 2015-09-20      |
+| 259906 | Capybara     | 2016-04-04      |
+| 259969 | Carlsen      | 2016-01-08      |
+| 260368 | Muller       | 2016-03-05      |
+| 261502 | Hawthorne    | 2016-06-29      |
+| 263119 | Jones        | 2016-03-28      |
+| 267780 | Shelly       | 2016-08-11      |
+| 272611 | Jarrett      | 2016-03-10      |
+| 272787 | Carlson      | 2016-08-13      |
+| 276381 | Collins      | 2016-05-03      |
+| 282716 | Biederbecke  | 2016-08-13      |
+| 290298 | Swift        | 2016-07-15      |
+| 296598 | Collins      | 2015-09-20      |
+| 299099 | Sam          | 2016-02-03      |
++--------+--------------+-----------------+
+29 rows in set (0.00 sec)
+
+--------------
+/*  TASK 08 */
+Select CS.cust_id as CustID, cust_name_last AS CustName, sum(quantity * order_price)  
+From bkorders.customers CS 
+JOIN bkorders.order_headers OH USING (cust_id) 
+JOIN bkorders.order_details OD USING (order_id) 
+WHERE book_id IN 
+    (
+		Select book_id 
+        From bkinfo.book_topics 
+        WHERE topic_id IN ('SQL') AND book_id != 1142
+    )
+GROUP BY CS.cust_id 
+HAVING sum(quantity * order_price) > 500.00
+--------------
+
++--------+--------------+-----------------------------+
+| CustID | CustName     | sum(quantity * order_price) |
++--------+--------------+-----------------------------+
+| 200368 | Blake        |                    24990.00 |
+| 211483 | Carroll      |                     1109.45 |
+| 212921 | Books on Tap |                      900.90 |
+| 217796 | Anders       |                     2439.20 |
+| 218709 | Bonnard      |                     4191.09 |
+| 221297 | Dodgson      |                      552.89 |
+| 222477 | Rossetti     |                     3780.79 |
+| 224038 | Austin       |                     4786.19 |
+| 227105 | Kafka        |                    39464.00 |
+| 228175 | Cardin       |                     2501.20 |
+| 234138 | Keats        |                     3030.00 |
+| 234709 | Brahms       |                     1996.52 |
+| 239427 | Marksa       |                      573.82 |
+| 261502 | Hawthorne    |                    29452.65 |
+| 263119 | Jones        |                    23683.98 |
+| 267780 | Shelly       |                    14199.69 |
+| 272787 | Carlson      |                      596.40 |
+| 282716 | Biederbecke  |                     6718.20 |
+| 290298 | Swift        |                    17691.60 |
++--------+--------------+-----------------------------+
+19 rows in set (0.00 sec)
+
+Bye

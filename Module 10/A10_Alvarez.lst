@@ -1,0 +1,286 @@
+--------------
+/* Nestor Alvarez */
+
+    /* enable warnings! */
+
+use bkinfo
+--------------
+
+Query OK, 0 rows affected (0.03 sec)
+
+--------------
+/*  TASK 00 */ 
+select user(), current_date(), version(), @@sql_mode
+--------------
+
+*************************** 1. row ***************************
+        user(): root@localhost
+current_date(): 2016-04-14
+     version(): 5.7.11-log
+    @@sql_mode: STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+1 row in set (0.03 sec)
+
+--------------
+/*  TASK 01 */
+Select book_id, title 
+From bkinfo.books 
+WHERE book_id IN 
+ (
+	Select book_id 
+    From bkinfo.book_topics 
+    WHERE topic_id IN ('SQL', 'DB') 
+ ) AND book_id IN 
+ (
+	Select book_id
+    From bkorders.order_details
+ )
+GROUP BY book_id 
+ORDER BY book_id
+--------------
+
++---------+-----------------------------------------+
+| book_id | title                                   |
++---------+-----------------------------------------+
+|    1105 | SQL:1999 Relational Language Concepts   |
+|    1106 | SQL for Smarties                        |
+|    1107 | SQL Puzzles and Answers                 |
+|    1108 | Database Systems                        |
+|    1109 | Intro to DB Systems-7th Ed              |
+|    1110 | Adv SQL:1999 Object_Relational Features |
+|    1128 | Temporal Data and the Relational Model  |
+|    1142 | Relational Database Theory              |
+|    1161 | SQL Programming Style                   |
+|    1162 | Trees and Hierarchies                   |
+|    1175 | MySQL in a Nutshell                     |
+|    1180 | MySQL Database Design and Tuning        |
+|    1182 | MySQL Cookbook                          |
+|    1184 | MySQL Developer's Library               |
+|    1185 | MySQL Stored Procedures                 |
+|    1188 | SQL for MySQL Developers                |
+|    1278 | Beginning VB 2008 Databases             |
+|    1306 | Myths of SQL                            |
+|    1483 | Programming with XML                    |
+|    2002 | SQL Server 2012 A Beginner's Guide      |
+|    2006 | T_SQL Programming (Inside series)       |
+|    2007 | T_SQL Querying (Inside series)          |
+|    2008 | SQL Server T_Sql Recipies               |
+|    2018 | Oracle Database 11g SQL                 |
+|    2025 | Oracle SQL Fundamentals I Exam Guide    |
+|    2032 | Oracle and the rest of the world        |
++---------+-----------------------------------------+
+26 rows in set (0.01 sec)
+
+--------------
+/*  TASK 02 */
+Select book_id, title 
+From bkinfo.books 
+WHERE book_id IN 
+ (
+	Select book_id 
+    From bkinfo.book_topics 
+    WHERE topic_id = 'SQL' 
+     AND book_id IN 
+      (
+		Select book_id 
+        From bkinfo.book_topics 
+        WHERE topic_id = 'DB' 
+      )
+ ) AND book_id IN 
+ (
+	Select book_id
+    From bkorders.order_details
+ )
+GROUP BY book_id 
+ORDER BY book_id
+--------------
+
++---------+-----------------------------------------+
+| book_id | title                                   |
++---------+-----------------------------------------+
+|    1105 | SQL:1999 Relational Language Concepts   |
+|    1110 | Adv SQL:1999 Object_Relational Features |
+|    1128 | Temporal Data and the Relational Model  |
++---------+-----------------------------------------+
+3 rows in set (0.00 sec)
+
+--------------
+/*  TASK 03 */
+Select book_id, title 
+From bkinfo.books 
+WHERE book_id IN 
+ (
+	Select book_id 
+    From bkinfo.book_topics 
+    WHERE topic_id = 'SQL' 
+     AND book_id IN 
+      (
+		Select book_id 
+        From bkinfo.book_topics 
+        WHERE topic_id = 'DB' 
+      )
+ ) AND book_id NOT IN 
+ (
+	Select book_id
+    From bkorders.order_details
+ )
+GROUP BY book_id 
+ORDER BY book_id
+--------------
+
++---------+--------------------------------------+
+| book_id | title                                |
++---------+--------------------------------------+
+|    1245 | A Scientific Approach to SQL Testing |
++---------+--------------------------------------+
+1 row in set (0.00 sec)
+
+--------------
+/*  TASK 04 */
+Select cust_id, cust_name_last 
+From bkorders.customers 
+WHERE cust_id IN 
+ (
+	Select cust_id 
+    From bkorders.order_headers 
+    WHERE YEAR(order_date) = YEAR(current_date) 
+     AND order_id IN 
+      (
+		Select order_id 
+        From bkorders.order_details 
+        WHERE book_id IN 
+         (
+			Select book_id 
+            From bkinfo.book_topics 
+            WHERE topic_id = 'HIST'
+         )
+      )
+ ) 
+ORDER BY cust_id
+--------------
+
++---------+----------------+
+| cust_id | cust_name_last |
++---------+----------------+
+|  212921 | Books on Tap   |
+|  217796 | Anders         |
+|  218709 | Bonnard        |
+|  234138 | Keats          |
+|  276381 | Collins        |
++---------+----------------+
+5 rows in set (0.00 sec)
+
+--------------
+/*  TASK 05 */
+Select book_id, title 
+From bkinfo.books 
+WHERE book_id IN 
+ (
+	Select book_id 
+    From bkorders.order_details 
+    GROUP BY book_id 
+    HAVING sum(quantity) > 500 
+ )
+ORDER BY book_id
+--------------
+
++---------+------------------------------------------------+
+| book_id | title                                          |
++---------+------------------------------------------------+
+|    1103 | Selected Poems                                 |
+|    1108 | Database Systems                               |
+|    1128 | Temporal Data and the Relational Model         |
+|    1142 | Relational Database Theory                     |
+|    1305 | Journeys Through Flatland                      |
+|    1401 | Visual Studio Tools for Office                 |
+|    1448 | Backyard Birdsong Guide: Western North America |
+|    1602 | Goblin Market and Other Poems                  |
+|    2002 | SQL Server 2012 A Beginner's Guide             |
+|    2025 | Oracle SQL Fundamentals I Exam Guide           |
++---------+------------------------------------------------+
+10 rows in set (0.00 sec)
+
+--------------
+/*  TASK 06 */
+Select DISTINCT MONTHNAME(order_date) AS `Month`, YEAR(order_date) AS `YEAR` 
+From bkorders.order_headers 
+WHERE order_date IN 
+ (
+	Select order_date 
+    From bkorders.order_headers 
+    WHERE order_id IN 
+     (
+		Select order_id 
+        From bkorders.order_details 
+        WHERE order_id IN 
+         (
+			Select order_id 
+            From bkorders.order_details 
+            GROUP BY order_id 
+            HAVING sum(quantity) <= ALL 
+			  (
+				Select sum(quantity) 
+				From bkorders.order_details 
+                GROUP BY order_id 
+                HAVING sum(quantity) > 0
+			  )
+         )
+     ) 
+ )
+--------------
+
++-----------+------+
+| Month     | YEAR |
++-----------+------+
+| March     | 2016 |
+| June      | 2015 |
+| January   | 2016 |
+| February  | 2015 |
+| March     | 2015 |
+| April     | 2015 |
+| February  | 2016 |
+| May       | 2015 |
+| November  | 2015 |
+| September | 2015 |
+| July      | 2015 |
+| December  | 2015 |
+| April     | 2016 |
++-----------+------+
+13 rows in set (0.03 sec)
+
+--------------
+/*  TASK 07 */
+Select DISTINCT MONTHNAME(order_date) AS `Month`, YEAR(order_date) AS `YEAR` 
+From bkorders.order_headers 
+WHERE order_date IN 
+ (
+	Select order_date 
+    From bkorders.order_headers 
+    WHERE order_id IN 
+     (
+		Select order_id 
+        From bkorders.order_details 
+        WHERE order_id IN 
+         (
+			Select order_id 
+            From bkorders.order_details 
+            GROUP BY order_id 
+            HAVING sum(quantity) >= ALL 
+			  (
+				Select sum(quantity) 
+				From bkorders.order_details 
+                GROUP BY order_id 
+                HAVING sum(quantity) > 0
+			  )
+         )
+     ) 
+ )
+--------------
+
++--------+------+
+| Month  | YEAR |
++--------+------+
+| August | 2015 |
++--------+------+
+1 row in set (0.00 sec)
+
+Bye

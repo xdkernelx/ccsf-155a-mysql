@@ -1,0 +1,269 @@
+--------------
+/* Nestor Alvarez */
+
+    /* enable warnings! */
+
+use   a_testbed
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+--------------
+/*  TASK 00 */ 
+select user(), current_date(), version(), @@sql_mode
+--------------
+
+*************************** 1. row ***************************
+        user(): root@localhost
+current_date(): 2016-01-26
+     version(): 5.7.10-log
+    @@sql_mode: STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+1 row in set (0.00 sec)
+
+--------------
+/*  TASK 01 */
+delete
+from a_testbed.zoo_2016
+where z_id > 100
+--------------
+
+Query OK, 12 rows affected (0.01 sec)
+
+--------------
+select *
+from a_testbed.zoo_2016
+--------------
+
++------+----------------+-----------+---------+---------------------+------------+
+| z_id | z_name         | z_type    | z_cost  | z_dob               | z_acquired |
++------+----------------+-----------+---------+---------------------+------------+
+|   23 | Sam            | Giraffe   | 5000.00 | 2014-05-15 00:00:00 | 2014-05-15 |
+|   25 | Abigail        | Armadillo |  490.00 | 2013-01-15 00:00:00 | 2013-04-05 |
+|   56 | Leon           | Lion      | 5000.00 | 2010-02-25 00:00:00 | 2010-03-25 |
+|   57 | Lenora         | Lion      | 5000.00 | 2014-03-25 00:00:00 | 2014-03-31 |
+|   85 | Sally Robinson | Giraffe   | 5000.25 | 2014-05-15 00:00:00 | 2014-05-15 |
+|   43 | Huey           | Zebra     | 2500.25 | 2013-06-02 00:00:00 | 2014-06-02 |
+|   44 | Dewey          | Zebra     | 2500.25 | 2014-06-02 00:00:00 | 2014-06-02 |
+|   45 | Louie          | Zebra     | 2500.25 | 2013-01-02 00:00:00 | 2014-01-02 |
+|   47 | NULL           | Horse     |  490.00 | 2015-01-10 00:00:00 | 2015-01-15 |
+|   52 | Dewey          | Giraffe   | 3750.00 | 2013-06-06 00:00:00 | 2013-07-12 |
++------+----------------+-----------+---------+---------------------+------------+
+10 rows in set (0.00 sec)
+
+--------------
+/*  TASK 02 */
+insert into a_testbed.zoo_2016 (z_id, z_name, z_type, z_cost, z_dob, z_acquired) values
+(101, 'Alfy', 'Roadrunner', 1337.00, current_date(), current_date()),
+(101, 'Kia',  'Koala',         0.99, current_date(), current_date()),
+(101, 'Brie', 'Cow',         600.00, current_date(), current_date())
+--------------
+
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+--------------
+/*  TASK 03 */
+/* From Insight, From Joanne Cho */
+Insert Into a_testbed.zoo_2016  (z_id, z_name, z_type, z_cost, z_dob, z_acquired)   Values
+
+   (111,'Lizzy','Bear', 5000.00, '2016-01-15','2016-01-26')
+--------------
+
+Query OK, 1 row affected (0.00 sec)
+
+--------------
+Insert Into a_testbed.zoo_2016 (z_id, z_name, z_type, z_cost, z_dob, z_acquired)    Values 
+
+   (122, 'Fil', 'Snake', 490.00, '2013-01-15', '2013-04-05')
+--------------
+
+Query OK, 1 row affected (0.00 sec)
+
+--------------
+Insert Into a_testbed.zoo_2016 (z_id, z_name, z_type, z_cost, z_dob, z_acquired)    Values 
+
+   (133, 'Mary', 'Rat', 5000.00, '2011-02-24', '2011-03-28')
+--------------
+
+Query OK, 1 row affected (0.00 sec)
+
+--------------
+/* From Insight, From Rebecca Kaufan */
+Insert into zoo_2016 
+
+(z_id, z_name, z_type, z_cost, z_dob, z_acquired)
+
+Values (110, 'Ozzy', 'Majestic Cat', 25.00, '2010-03-15', '2010-04-15'),
+
+(111, 'Smooshie', 'Regular Cat', 30.00, '2010-02-10', '2010-03-15'),
+
+(112, 'Squishy', 'Yard Squirrel', 0.00, '2015-06-15', '2015-08-15')
+--------------
+
+Query OK, 3 rows affected (0.00 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+--------------
+/* From Insight, From Nishtman Vosoughi */
+
+Insert Into  a_testbed.zoo_2016  (z_id, z_name, z_type, z_cost, z_dob, z_acquired)    Values
+   (152, 'Ram', 'Cheetah', 1500.00, '2012-06-10', '2013-01-08')
+--------------
+
+Query OK, 1 row affected (0.00 sec)
+
+--------------
+Insert Into  a_testbed.zoo_2016  (z_id, z_name, z_type, z_cost, z_dob, z_acquired)    Values
+   (183, 'Survivor', 'Coyote', 400.00, '2010-02-15', '2015-05-21')
+--------------
+
+Query OK, 1 row affected (0.00 sec)
+
+--------------
+Insert Into  a_testbed.zoo_2016  (z_id, z_name, z_type, z_cost, z_dob, z_acquired)    Values
+   (352, 'Snow', 'Panda', 95000.00, '2009-09-23', '2011-04-21')
+--------------
+
+Query OK, 1 row affected (0.00 sec)
+
+--------------
+/*  TASK 04 */
+select z_id, z_name, z_type, z_cost, z_dob, z_acquired
+from a_testbed.zoo_2016
+--------------
+
++------+----------------+---------------+----------+---------------------+------------+
+| z_id | z_name         | z_type        | z_cost   | z_dob               | z_acquired |
++------+----------------+---------------+----------+---------------------+------------+
+|   23 | Sam            | Giraffe       |  5000.00 | 2014-05-15 00:00:00 | 2014-05-15 |
+|   25 | Abigail        | Armadillo     |   490.00 | 2013-01-15 00:00:00 | 2013-04-05 |
+|   56 | Leon           | Lion          |  5000.00 | 2010-02-25 00:00:00 | 2010-03-25 |
+|   57 | Lenora         | Lion          |  5000.00 | 2014-03-25 00:00:00 | 2014-03-31 |
+|   85 | Sally Robinson | Giraffe       |  5000.25 | 2014-05-15 00:00:00 | 2014-05-15 |
+|   43 | Huey           | Zebra         |  2500.25 | 2013-06-02 00:00:00 | 2014-06-02 |
+|   44 | Dewey          | Zebra         |  2500.25 | 2014-06-02 00:00:00 | 2014-06-02 |
+|   45 | Louie          | Zebra         |  2500.25 | 2013-01-02 00:00:00 | 2014-01-02 |
+|   47 | NULL           | Horse         |   490.00 | 2015-01-10 00:00:00 | 2015-01-15 |
+|   52 | Dewey          | Giraffe       |  3750.00 | 2013-06-06 00:00:00 | 2013-07-12 |
+|  101 | Alfy           | Roadrunner    |  1337.00 | 2016-01-26 00:00:00 | 2016-01-26 |
+|  101 | Kia            | Koala         |     0.99 | 2016-01-26 00:00:00 | 2016-01-26 |
+|  101 | Brie           | Cow           |   600.00 | 2016-01-26 00:00:00 | 2016-01-26 |
+|  111 | Lizzy          | Bear          |  5000.00 | 2016-01-15 00:00:00 | 2016-01-26 |
+|  122 | Fil            | Snake         |   490.00 | 2013-01-15 00:00:00 | 2013-04-05 |
+|  133 | Mary           | Rat           |  5000.00 | 2011-02-24 00:00:00 | 2011-03-28 |
+|  110 | Ozzy           | Majestic Cat  |    25.00 | 2010-03-15 00:00:00 | 2010-04-15 |
+|  111 | Smooshie       | Regular Cat   |    30.00 | 2010-02-10 00:00:00 | 2010-03-15 |
+|  112 | Squishy        | Yard Squirrel |     0.00 | 2015-06-15 00:00:00 | 2015-08-15 |
+|  152 | Ram            | Cheetah       |  1500.00 | 2012-06-10 00:00:00 | 2013-01-08 |
+|  183 | Survivor       | Coyote        |   400.00 | 2010-02-15 00:00:00 | 2015-05-21 |
+|  352 | Snow           | Panda         | 95000.00 | 2009-09-23 00:00:00 | 2011-04-21 |
++------+----------------+---------------+----------+---------------------+------------+
+22 rows in set (0.00 sec)
+
+--------------
+/*  TASK 05 */
+select z_type, z_name, z_cost 
+from zoo_2016 
+order by z_type, z_name
+--------------
+
++---------------+----------------+----------+
+| z_type        | z_name         | z_cost   |
++---------------+----------------+----------+
+| Armadillo     | Abigail        |   490.00 |
+| Bear          | Lizzy          |  5000.00 |
+| Cheetah       | Ram            |  1500.00 |
+| Cow           | Brie           |   600.00 |
+| Coyote        | Survivor       |   400.00 |
+| Giraffe       | Dewey          |  3750.00 |
+| Giraffe       | Sally Robinson |  5000.25 |
+| Giraffe       | Sam            |  5000.00 |
+| Horse         | NULL           |   490.00 |
+| Koala         | Kia            |     0.99 |
+| Lion          | Lenora         |  5000.00 |
+| Lion          | Leon           |  5000.00 |
+| Majestic Cat  | Ozzy           |    25.00 |
+| Panda         | Snow           | 95000.00 |
+| Rat           | Mary           |  5000.00 |
+| Regular Cat   | Smooshie       |    30.00 |
+| Roadrunner    | Alfy           |  1337.00 |
+| Snake         | Fil            |   490.00 |
+| Yard Squirrel | Squishy        |     0.00 |
+| Zebra         | Dewey          |  2500.25 |
+| Zebra         | Huey           |  2500.25 |
+| Zebra         | Louie          |  2500.25 |
++---------------+----------------+----------+
+22 rows in set (0.00 sec)
+
+--------------
+/*  TASK 06 */
+select z_id, z_name, z_dob 
+from zoo_2016 
+where z_type = 'Zebra' 
+order by z_dob
+--------------
+
++------+--------+---------------------+
+| z_id | z_name | z_dob               |
++------+--------+---------------------+
+|   45 | Louie  | 2013-01-02 00:00:00 |
+|   43 | Huey   | 2013-06-02 00:00:00 |
+|   44 | Dewey  | 2014-06-02 00:00:00 |
++------+--------+---------------------+
+3 rows in set (0.00 sec)
+
+--------------
+/*  TASK 07 */
+show tables
+--------------
+
++---------------------+
+| Tables_in_a_testbed |
++---------------------+
+| zoo_2016            |
++---------------------+
+1 row in set (0.00 sec)
+
+--------------
+/*  TASK 08 */
+desc a_testbed.zoo_2016
+--------------
+
++------------+-----------------------+------+-----+---------+-------+
+| Field      | Type                  | Null | Key | Default | Extra |
++------------+-----------------------+------+-----+---------+-------+
+| z_id       | int(11)               | NO   |     | NULL    |       |
+| z_name     | varchar(25)           | YES  |     | NULL    |       |
+| z_type     | varchar(25)           | NO   |     | NULL    |       |
+| z_cost     | decimal(7,2) unsigned | NO   |     | NULL    |       |
+| z_dob      | datetime              | NO   |     | NULL    |       |
+| z_acquired | date                  | NO   |     | NULL    |       |
++------------+-----------------------+------+-----+---------+-------+
+6 rows in set (0.00 sec)
+
+--------------
+/*  TASK 09 */
+show variables like 'char%'
+--------------
+
++--------------------------+---------------------------------------------------------+
+| Variable_name            | Value                                                   |
++--------------------------+---------------------------------------------------------+
+| character_set_client     | cp850                                                   |
+| character_set_connection | cp850                                                   |
+| character_set_database   | utf8                                                    |
+| character_set_filesystem | binary                                                  |
+| character_set_results    | cp850                                                   |
+| character_set_server     | utf8                                                    |
+| character_set_system     | utf8                                                    |
+| character_sets_dir       | C:\Program Files\MySQL\MySQL Server 5.7\share\charsets\ |
++--------------------------+---------------------------------------------------------+
+8 rows in set (0.00 sec)
+
+--------------
+/*  TASK 10 */
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+Bye

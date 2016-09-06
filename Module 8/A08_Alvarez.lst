@@ -1,0 +1,202 @@
+--------------
+/* Nestor Alvarez */
+
+    /* enable warnings! */
+
+use bkinfo
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+--------------
+/*  TASK 00 */ 
+select user(), current_date(), version(), @@sql_mode
+--------------
+
+*************************** 1. row ***************************
+        user(): root@localhost
+current_date(): 2016-03-23
+     version(): 5.7.10-log
+    @@sql_mode: STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+1 row in set (0.01 sec)
+
+--------------
+/*  TASK 01 */
+drop view if exists bkorders.BkOrdersPriorYear
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+--------------
+create view bkorders.BkOrdersPriorYear AS (
+	Select DISTINCT CS.cust_id AS customerID
+    , concat(CS.cust_name_last, IF(CS.cust_name_first IS NULL, "", concat(", ", CS.cust_name_first))) AS customerName
+    , cast(OH.order_date as date) AS order_date 
+    From bkorders.customers CS
+    JOIN bkorders.order_headers OH USING (cust_id) 
+    JOIN bkorders.order_details OD USING (order_id) 
+    WHERE YEAR(order_date) = 2015
+)
+--------------
+
+Query OK, 0 rows affected (0.02 sec)
+
+--------------
+/*  TASK 02 */
+Select DISTINCT customerID, customerName 
+From bkorders.BkOrdersPriorYear 
+WHERE MONTH(order_date) IN (4, 6, 8)
+--------------
+
++------------+----------------------+
+| customerID | customerName         |
++------------+----------------------+
+|     200368 | Blake, William       |
+|     212921 | Books on Tap         |
+|     218709 | Bonnard, Paul        |
+|     221297 | Dodgson, Charles     |
+|     222477 | Rossetti, Christina  |
+|     226656 | Randall, Randell     |
+|     227105 | Kafka, Franz         |
+|     234138 | Keats, John          |
+|     259906 | Capybara, Wile E.    |
+|     261502 | Hawthorne, Nathaniel |
+|     263119 | Jones                |
+|     267780 | Shelly, Mary         |
+|     272787 | Carlson, Ben         |
+|     276381 | Collins, Douglas     |
++------------+----------------------+
+14 rows in set (0.01 sec)
+
+--------------
+/*  TASK 03 */
+Select DISTINCT customerID, customerName 
+From bkorders.BkOrdersPriorYear 
+WHERE customerID NOT IN 
+ (
+	Select customerID 
+    From bkorders.BkOrdersPriorYear 
+    WHERE MONTH(order_date) IN (3, 6, 9)
+ )
+--------------
+
++------------+------------------+
+| customerID | customerName     |
++------------+------------------+
+|     208950 | Adams, Samuel    |
+|     224038 | Austin, Pat      |
+|     228175 | Cardin, Benjamin |
++------------+------------------+
+3 rows in set (0.02 sec)
+
+--------------
+/*  TASK 04 */
+Select DISTINCT customerID, customerName 
+From bkorders.BkOrdersPriorYear 
+WHERE customerID IN 
+ (
+	Select customerID 
+    From bkorders.BkOrdersPriorYear 
+    WHERE Month(order_date) = 3
+ ) AND customerID IN 
+ (
+	Select customerID 
+    From bkorders.BkOrdersPriorYear 
+    WHERE Month(order_date) = 6
+ ) AND customerID IN 
+ (
+	Select customerID 
+    From bkorders.BkOrdersPriorYear 
+    WHERE Month(order_date) = 9
+ )
+--------------
+
++------------+----------------------+
+| customerID | customerName         |
++------------+----------------------+
+|     261502 | Hawthorne, Nathaniel |
+|     272787 | Carlson, Ben         |
++------------+----------------------+
+2 rows in set (0.04 sec)
+
+--------------
+/*  TASK 05 */
+Select DISTINCT customerID, customerName 
+From bkorders.BkOrdersPriorYear 
+WHERE customerID IN 
+ (
+	Select customerID 
+    From bkorders.BkOrdersPriorYear 
+    WHERE Month(order_date) = 1
+ ) AND customerID NOT IN 
+ (
+	Select customerID 
+    From bkorders.BkOrdersPriorYear
+    WHERE Month(order_date) IN (2, 3)
+ )
+--------------
+
++------------+-------------------+
+| customerID | customerName      |
++------------+-------------------+
+|     226656 | Randall, Randell  |
+|     259906 | Capybara, Wile E. |
++------------+-------------------+
+2 rows in set (0.02 sec)
+
+--------------
+/*  TASK 06 */
+Select DISTINCT customerID, customerName 
+From bkorders.BkOrdersPriorYear 
+WHERE customerID IN 
+ (
+	Select customerID 
+    From bkorders.BkOrdersPriorYear 
+    WHERE Month(order_date) = 3
+ ) AND customerID IN 
+ (
+	Select customerID 
+    From bkorders.BkOrdersPriorYear
+    WHERE Month(order_date) IN (4, 5)
+ )
+--------------
+
++------------+------------------+
+| customerID | customerName     |
++------------+------------------+
+|     234138 | Keats, John      |
+|     272787 | Carlson, Ben     |
+|     276381 | Collins, Douglas |
++------------+------------------+
+3 rows in set (0.02 sec)
+
+--------------
+/*  TASK 07 */
+Select DISTINCT customerID, customerName 
+From bkorders.BkOrdersPriorYear 
+WHERE customerID IN 
+ (
+	Select customerID 
+    From bkorders.BkOrdersPriorYear 
+    WHERE Month(order_date) = 4
+ ) AND customerID IN 
+ (
+	Select customerID 
+    From bkorders.BkOrdersPriorYear 
+    WHERE Month(order_date) = 5
+ ) AND customerID NOT IN 
+ (
+	Select customerID 
+    From bkorders.BkOrdersPriorYear 
+    WHERE Month(order_date) = 6
+ )
+--------------
+
++------------+--------------+
+| customerID | customerName |
++------------+--------------+
+|     212921 | Books on Tap |
++------------+--------------+
+1 row in set (0.03 sec)
+
+Bye

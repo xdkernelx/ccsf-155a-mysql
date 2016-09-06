@@ -1,0 +1,230 @@
+--------------
+/* Nestor Alvarez */
+
+    /* enable warnings! */
+
+use vets
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+--------------
+/*  TASK 00 */ 
+select user(), current_date(), version(), @@sql_mode
+--------------
+
+*************************** 1. row ***************************
+        user(): root@localhost
+current_date(): 2016-02-10
+     version(): 5.7.10-log
+    @@sql_mode: STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+1 row in set (0.00 sec)
+
+--------------
+/*  TASK 01 */
+Select 
+	DISTINCT concat(cl_postal_code, ': ', cl_city, ' ', cl_state) AS Location 
+From vets.vt_clients 
+WHERE cl_state IN ('CA', 'NV')
+--------------
+
++-------------------------+
+| Location                |
++-------------------------+
+| 92101: San Diego CA     |
+| 94112: San Francisco CA |
+| 94101: San Francisco CA |
++-------------------------+
+3 rows in set (0.00 sec)
+
+--------------
+/*  TASK 02 */
+Select cl_name_first, cl_name_last, cl_phone 
+From vets.vt_clients 
+WHERE cl_phone IS NOT NULL 
+ORDER BY cl_id
+--------------
+
++---------------+--------------+--------------+
+| cl_name_first | cl_name_last | cl_phone     |
++---------------+--------------+--------------+
+| James         | Carter       | 510.258.4546 |
+| Jack          | Dalrymple    | 701.328.2725 |
+| Coleman       | Hawkins      | 937.258.5645 |
+| Theo          | Monk         | 212.582.6245 |
+| Wilson        | Pickett      | 212.584.9871 |
+| Stanley       | Turrentine   | 619.231.1515 |
+| NULL          | Biederbecke  | 217.239.6945 |
+| NULL          | Biederbecke  | 415.239.6945 |
+| Sue           | Biederbecke  | 217.239.6875 |
+| Sam           | Biederbecke  | 415.239.6875 |
+| Dave          | Brubeck      | 258.257.2727 |
++---------------+--------------+--------------+
+11 rows in set (0.00 sec)
+
+--------------
+/*  TASK 03 */
+Select DISTINCT srv_id 
+From vets.vt_exam_details 
+WHERE ex_fee >= 75
+--------------
+
++--------+
+| srv_id |
++--------+
+|    105 |
+|    106 |
+|    108 |
+|    110 |
+|    461 |
+|    523 |
+|    524 |
+|    602 |
+|    603 |
+|    604 |
+|    605 |
+|    615 |
+|    625 |
++--------+
+13 rows in set (0.00 sec)
+
+--------------
+/*  TASK 04 */
+Select concat(stf_name_first, ' ', stf_name_last) AS staff
+, stf_id
+, stf_job_title 
+From vets.vt_staff 
+WHERE stf_job_title NOT IN ('vet', 'vet assnt')
+--------------
+
++--------------+--------+---------------+
+| staff        | stf_id | stf_job_title |
++--------------+--------+---------------+
+| Shirley Horn |     20 | clerical      |
+| Pat Halvers  |     43 | kennel        |
++--------------+--------+---------------+
+2 rows in set (0.00 sec)
+
+--------------
+/*  TASK 05 */
+Select srv_id AS "Service ID"
+, srv_type AS "Service Type"
+, srv_desc AS "Description"
+, srv_list_price AS "Curr Price"
+, (srv_list_price * 0.15 + srv_list_price) AS "Incr Price" 
+From vets.vt_services 
+WHERE srv_type NOT IN ('office visit') 
+ORDER BY srv_id
+--------------
+
++------------+--------------+--------------------------------------------+------------+------------+
+| Service ID | Service Type | Description                                | Curr Price | Incr Price |
++------------+--------------+--------------------------------------------+------------+------------+
+|        101 | treatment    | Dental Cleaning-Canine                     |      50.00 |    57.5000 |
+|        102 | treatment    | Dental Cleaning-Feline                     |      45.00 |    51.7500 |
+|        106 | treatment    | Routine Exam-Bird                          |      75.00 |    86.2500 |
+|        110 | treatment    | Dental Cleaning-Other                      |     100.00 |   115.0000 |
+|        112 | medicine     | Scaly Mite Powder                          |      25.33 |    29.1295 |
+|        113 | treatment    | Intestinal Parasite Screen                 |      26.00 |    29.9000 |
+|        225 | medicine     | Feline PCR Series                          |      75.00 |    86.2500 |
+|        400 | treatment    | Hazardous Materials Disposal               |      10.50 |    12.0750 |
+|        461 | treatment    | Feline Behaviour Modification Consultation |     275.00 |   316.2500 |
+|        551 | medicine     | First Feline PCR                           |      35.50 |    40.8250 |
+|        552 | medicine     | Second Feline PCR                          |      25.15 |    28.9225 |
+|        553 | medicine     | Third Feline PCR                           |      25.85 |    29.7275 |
+|        602 | treatment    | General Anaesthesia 1 hour                 |     222.00 |   255.3000 |
+|        603 | treatment    | Feline Dental X_ray                        |      78.00 |    89.7000 |
+|        604 | treatment    | Dental Scaling                             |     109.00 |   125.3500 |
+|        605 | treatment    | Tooth extraction Level 1                   |     535.00 |   615.2500 |
+|        606 | treatment    | Tooth extraction Level 2                   |      40.00 |    46.0000 |
+|        607 | treatment    | Tooth extraction Level 3                   |      57.00 |    65.5500 |
+|        612 | medicine     | Buprenex oral drops 1 ml                   |      25.91 |    29.7965 |
+|        613 | treatment    | Hospital stay- short                       |      47.00 |    54.0500 |
+|        615 | medicine     | Antibiotics                                |      78.30 |    90.0450 |
+|        625 | treatment    | CBC and scan                               |     155.00 |   178.2500 |
+|        687 | medicine     | Vitamin E- Concentrated                    |      45.99 |    52.8885 |
+|        748 | medicine     | Preds-liver                                |      29.50 |    33.9250 |
+|        749 | medicine     | Preds-chicken                              |      29.50 |    33.9250 |
++------------+--------------+--------------------------------------------+------------+------------+
+25 rows in set (0.01 sec)
+
+--------------
+/*  TASK 06 */
+Select cl_id, an_id, an_name 
+From vets.vt_animals 
+WHERE an_type IN ('capybara', 'dormouse', 'hamster', 'porcupine') 
+ORDER BY cl_id, an_id
+--------------
+
++-------+-------+-----------+
+| cl_id | an_id | an_name   |
++-------+-------+-----------+
+|  3423 | 16002 | Fritz     |
+|  3423 | 21005 | Koshka    |
+|  3423 | 21006 | Koshka    |
+|  3560 | 12038 | Gutsy     |
+|  5699 | 17002 | Fritzchen |
++-------+-------+-----------+
+5 rows in set (0.00 sec)
+
+--------------
+/*  TASK 07 */
+Select DISTINCT cl_id, an_type 
+From vets.vt_animals 
+WHERE an_type IN ('crocodilian', 'lizard', 'snake', 'turtle') 
+ORDER BY cl_id
+--------------
+
++-------+---------+
+| cl_id | an_type |
++-------+---------+
+|   411 | lizard  |
+|  1852 | snake   |
+|  3561 | lizard  |
+|  3561 | snake   |
+|  3561 | turtle  |
+|  5699 | turtle  |
+|  7152 | lizard  |
++-------+---------+
+7 rows in set (0.00 sec)
+
+--------------
+/*  TASK 08 */
+Select cl_id, an_id, an_name, an_dob 
+From vets.vt_animals 
+WHERE an_type IN ('bird', 'cat', 'dog', 'hedgehog', 'olinguito') 
+ORDER BY an_dob
+--------------
+
++-------+-------+-----------------+------------+
+| cl_id | an_id | an_name         | an_dob     |
++-------+-------+-----------------+------------+
+|  3560 | 12035 | Mr Peanut       | 1995-02-28 |
+|  1825 | 21002 | Edger           | 2002-10-02 |
+|   411 | 15165 | Burgess         | 2005-11-20 |
+|  6426 | 19845 | Pinkie          | 2009-02-02 |
+|   411 | 21001 | Yoggie          | 2009-05-22 |
+|  3560 | 10002 | Gutsy           | 2010-04-15 |
+|  5698 | 21316 | Etta            | 2010-06-11 |
+|  5698 | 21317 | Manfried        | 2011-06-11 |
+|  3560 | 11025 | NULL            | 2012-02-01 |
+|  3560 | 11015 | Kenny           | 2012-02-23 |
+|  5698 | 21318 | Waldrom         | 2012-06-11 |
+|  1825 | 16003 | Ursula          | 2013-02-06 |
+|  4087 | 21314 | Adalwine        | 2013-06-11 |
+|  4534 | 21315 | Baldric         | 2013-06-11 |
+|  1852 | 21321 | Morton          | 2014-06-03 |
+|  1825 | 16043 | Ursula          | 2014-06-06 |
+|  1825 | 16044 | Triton          | 2014-06-06 |
+|  1852 | 21320 | Morris          | 2014-06-11 |
+|  6426 | 21003 | Calvin Coolidge | 2014-06-18 |
+|  4087 | 21305 | Spot            | 2014-07-27 |
+|  4087 | 21306 | Shadow          | 2014-07-27 |
+|  4087 | 21307 | Buddy           | 2014-07-27 |
+|  5689 | 21205 | Manfried        | 2015-03-30 |
+|  3560 | 11028 | NULL            | 2015-10-01 |
+|  3560 | 11029 | NULL            | 2015-10-01 |
++-------+-------+-----------------+------------+
+25 rows in set (0.00 sec)
+
+Bye

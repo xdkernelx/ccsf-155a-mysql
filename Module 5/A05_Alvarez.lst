@@ -1,0 +1,304 @@
+--------------
+/* Nestor Alvarez */
+
+    /* enable warnings! */
+
+use vets
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+--------------
+/*  TASK 00 */ 
+select user(), current_date(), version(), @@sql_mode
+--------------
+
+*************************** 1. row ***************************
+        user(): root@localhost
+current_date(): 2016-02-27
+     version(): 5.7.10-log
+    @@sql_mode: STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+1 row in set (0.00 sec)
+
+--------------
+/*  TASK 01 */
+Select cl_id, cl_name_last, COALESCE(cl_name_first, '') AS 'cl_name_first', 
+	COALESCE(cl_phone, 'no phone number') AS 'cl_phone' 
+From vets.vt_clients
+--------------
+
++-------+--------------+---------------+-----------------+
+| cl_id | cl_name_last | cl_name_first | cl_phone        |
++-------+--------------+---------------+-----------------+
+|   254 | Boston       | Edger         | no phone number |
+|   411 | Carter       | James         | 510.258.4546    |
+|  1825 | Harris       | Eddie         | no phone number |
+|  1852 | Dalrymple    | Jack          | 701.328.2725    |
+|  3423 | Hawkins      | Coleman       | 937.258.5645    |
+|  3560 | Monk         | Theo          | 212.582.6245    |
+|  3561 | Pickett      | Wilson        | 212.584.9871    |
+|  4087 | Turrentine   | Stanley       | 619.231.1515    |
+|  4534 | Montgomery   | Wes           | no phone number |
+|  5686 | Biederbecke  |               | 217.239.6945    |
+|  5689 | Biederbecke  |               | 415.239.6945    |
+|  5698 | Biederbecke  | Sue           | 217.239.6875    |
+|  5699 | Biederbecke  | Sam           | 415.239.6875    |
+|  6426 | Hawkins      | Coleman       | no phone number |
+|  6897 | Drake        | Donald        | no phone number |
+|  7152 | Brubeck      | Dave          | 258.257.2727    |
+|  7212 | Davis        | Donald        | no phone number |
++-------+--------------+---------------+-----------------+
+17 rows in set (0.00 sec)
+
+--------------
+/*  TASK 02 */
+Select concat_ws(' ', cl_id, IF(cl_name_first IS NULL, concat(cl_name_last, ':'), concat(cl_name_last, ', ', cl_name_first, ':')), 
+	IF(cl_phone IS NULL, 'No phone', concat('Phone: ', cl_phone))) AS 'Client' 
+From vets.vt_clients
+--------------
+
++-----------------------------------------------+
+| Client                                        |
++-----------------------------------------------+
+| 254 Boston, Edger: No phone                   |
+| 411 Carter, James: Phone: 510.258.4546        |
+| 1825 Harris, Eddie: No phone                  |
+| 1852 Dalrymple, Jack: Phone: 701.328.2725     |
+| 3423 Hawkins, Coleman: Phone: 937.258.5645    |
+| 3560 Monk, Theo: Phone: 212.582.6245          |
+| 3561 Pickett, Wilson: Phone: 212.584.9871     |
+| 4087 Turrentine, Stanley: Phone: 619.231.1515 |
+| 4534 Montgomery, Wes: No phone                |
+| 5686 Biederbecke: Phone: 217.239.6945         |
+| 5689 Biederbecke: Phone: 415.239.6945         |
+| 5698 Biederbecke, Sue: Phone: 217.239.6875    |
+| 5699 Biederbecke, Sam: Phone: 415.239.6875    |
+| 6426 Hawkins, Coleman: No phone               |
+| 6897 Drake, Donald: No phone                  |
+| 7152 Brubeck, Dave: Phone: 258.257.2727       |
+| 7212 Davis, Donald: No phone                  |
++-----------------------------------------------+
+17 rows in set (0.00 sec)
+
+--------------
+/*  TASK 03 */
+Select srv_id, srv_list_price, Format(Round(srv_list_price, -1), 2) AS RoundedToTens, Format(Round(srv_list_price, 0), 2) AS RoundedUpToDollar 
+From vets.vt_services 
+WHERE srv_id BETWEEN 500 and 599
+--------------
+
++--------+----------------+---------------+-------------------+
+| srv_id | srv_list_price | RoundedToTens | RoundedUpToDollar |
++--------+----------------+---------------+-------------------+
+|    523 |          60.00 | 60.00         | 60.00             |
+|    524 |          25.00 | 30.00         | 25.00             |
+|    551 |          35.50 | 40.00         | 36.00             |
+|    552 |          25.15 | 30.00         | 25.00             |
+|    553 |          25.85 | 30.00         | 26.00             |
++--------+----------------+---------------+-------------------+
+5 rows in set (0.00 sec)
+
+--------------
+/*  TASK 04 */
+Select srv_desc 
+From vets.vt_services 
+WHERE srv_desc RegExp 'dental' 
+AND !(srv_desc RegExp 'feline')
+--------------
+
++------------------------+
+| srv_desc               |
++------------------------+
+| Dental Cleaning-Canine |
+| Dental Cleaning-Other  |
+| Dental Scaling         |
++------------------------+
+3 rows in set (0.00 sec)
+
+--------------
+/*  TASK 05 */
+Select ex_id, ex_date AS ExamDate1, Date(ex_date) AS ExamDate2, 
+	cast(ex_date AS date) AS ExamDate3, Date_Format(ex_date, '%M %e, %Y') AS ExamDate4 
+From vets.vt_exam_headers 
+LIMIT 5
+--------------
+
++-------+---------------------+------------+------------+----------------+
+| ex_id | ExamDate1           | ExamDate2  | ExamDate3  | ExamDate4      |
++-------+---------------------+------------+------------+----------------+
+|  2205 | 2015-04-08 10:30:00 | 2015-04-08 | 2015-04-08 | April 8, 2015  |
+|  2228 | 2015-04-04 12:30:00 | 2015-04-04 | 2015-04-04 | April 4, 2015  |
+|  2289 | 2015-04-11 13:00:00 | 2015-04-11 | 2015-04-11 | April 11, 2015 |
+|  2290 | 2015-04-11 17:00:00 | 2015-04-11 | 2015-04-11 | April 11, 2015 |
+|  2300 | 2015-05-08 09:15:00 | 2015-05-08 | 2015-05-08 | May 8, 2015    |
++-------+---------------------+------------+------------+----------------+
+5 rows in set (0.00 sec)
+
+--------------
+/*  TASK 06 */
+Select an_id, an_name 
+From vets.vt_animals 
+JOIN vets.vt_exam_headers USING (an_id) 
+WHERE ex_date BETWEEN cast('2015-01-01' AS datetime) and date_add('2015-01-01', interval 6 month)
+--------------
+
++-------+---------+
+| an_id | an_name |
++-------+---------+
+| 21307 | Buddy   |
+| 21306 | Shadow  |
+| 21320 | Morris  |
+| 21320 | Morris  |
+| 21316 | Etta    |
+| 10002 | Gutsy   |
+| 21006 | Koshka  |
+| 12038 | Gutsy   |
+| 16002 | Fritz   |
++-------+---------+
+9 rows in set (0.00 sec)
+
+--------------
+/*  TASK 07 */
+Select an_id, an_name 
+From vets.vt_animals 
+JOIN vets.vt_exam_headers USING (an_id) 
+WHERE EXTRACT(Month FROM ex_date) = EXTRACT(Month FROM current_date()) - 1 
+ OR EXTRACT(Month FROM ex_date) = EXTRACT(Month FROM current_date())
+--------------
+
++-------+-----------+
+| an_id | an_name   |
++-------+-----------+
+| 12035 | Mr Peanut |
+| 15001 | Big Mike  |
+| 16002 | Fritz     |
+| 16002 | Fritz     |
+| 16002 | Fritz     |
+| 17025 | 25        |
+| 17026 | 3P#_26    |
+| 16003 | Ursula    |
+| 15001 | Big Mike  |
+| 15001 | Big Mike  |
+| 15002 | George    |
+| 16002 | Fritz     |
++-------+-----------+
+12 rows in set (0.00 sec)
+
+--------------
+/*  TASK 08 */
+Select an_id, an_name 
+From vets.vt_animals 
+JOIN vets.vt_exam_headers USING (an_id) 
+WHERE cast(ex_date AS date) = last_day(ex_date)
+--------------
+
++-------+----------+
+| an_id | an_name  |
++-------+----------+
+| 15001 | Big Mike |
+| 21005 | Koshka   |
++-------+----------+
+2 rows in set (0.00 sec)
+
+--------------
+/*  TASK 09 */
+Set @v = Floor(Rand() * (150-75+1) + 75)
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+--------------
+Select @v
+--------------
+
++------+
+| @v   |
++------+
+|  107 |
++------+
+1 row in set (0.00 sec)
+
+--------------
+Select ex_id, srv_id, ex_fee 
+From vets.vt_exam_details 
+WHERE ex_fee > @v
+--------------
+
++-------+--------+--------+
+| ex_id | srv_id | ex_fee |
++-------+--------+--------+
+|  2205 |    602 | 200.00 |
+|  2289 |    523 | 275.00 |
+|  2290 |    524 | 275.00 |
+|  2400 |    461 | 275.00 |
+|  3010 |    605 | 535.00 |
+|  3105 |    110 | 150.00 |
+|  3486 |    461 | 275.00 |
+|  3612 |    602 | 222.00 |
+|  3612 |    604 | 109.00 |
+|  3612 |    625 | 155.00 |
+|  4103 |    461 | 275.00 |
+|  4243 |    461 | 275.00 |
+|  4255 |    461 | 275.00 |
+|  4612 |    602 | 222.00 |
++-------+--------+--------+
+14 rows in set (0.00 sec)
+
+--------------
+/*  TASK 10 */
+Select an_id, an_type,
+	CASE 
+		WHEN an_type IN ('capybara', 'dormouse', 'hamster', 'porcupine') THEN 'Rodent' 
+        WHEN an_type IN ('crocodilian', 'lizard', 'snake', 'turtle') THEN 'Reptile' 
+        WHEN an_type IN ('dog', 'cat') THEN 'Cat/Dog' 
+        WHEN an_type IS NULL THEN 'Error' 
+	ELSE an_type 
+    END AS Category 
+From vets.vt_animals
+--------------
+
++-------+-----------+-----------+
+| an_id | an_type   | Category  |
++-------+-----------+-----------+
+| 11015 | bird      | bird      |
+| 11025 | bird      | bird      |
+| 11028 | bird      | bird      |
+| 11029 | bird      | bird      |
+| 12035 | bird      | bird      |
+| 10002 | cat       | Cat/Dog   |
+| 16003 | cat       | Cat/Dog   |
+| 21314 | cat       | Cat/Dog   |
+| 21315 | cat       | Cat/Dog   |
+| 21316 | cat       | Cat/Dog   |
+| 21317 | cat       | Cat/Dog   |
+| 21318 | cat       | Cat/Dog   |
+| 15165 | dog       | Cat/Dog   |
+| 16043 | dog       | Cat/Dog   |
+| 16044 | dog       | Cat/Dog   |
+| 19845 | dog       | Cat/Dog   |
+| 21003 | dog       | Cat/Dog   |
+| 21205 | dog       | Cat/Dog   |
+| 21305 | dog       | Cat/Dog   |
+| 21306 | dog       | Cat/Dog   |
+| 21307 | dog       | Cat/Dog   |
+| 21005 | dormouse  | Rodent    |
+| 21006 | hamster   | Rodent    |
+| 21001 | hedgehog  | hedgehog  |
+| 21002 | hedgehog  | hedgehog  |
+| 15401 | lizard    | Reptile   |
+| 17025 | lizard    | Reptile   |
+| 17026 | lizard    | Reptile   |
+| 17027 | lizard    | Reptile   |
+| 21320 | olinguito | olinguito |
+| 21321 | olinguito | olinguito |
+| 12038 | porcupine | Rodent    |
+| 16002 | porcupine | Rodent    |
+| 17002 | porcupine | Rodent    |
+| 21004 | snake     | Reptile   |
+| 21007 | snake     | Reptile   |
+| 15001 | turtle    | Reptile   |
+| 15002 | turtle    | Reptile   |
++-------+-----------+-----------+
+38 rows in set (0.00 sec)
+
+Bye

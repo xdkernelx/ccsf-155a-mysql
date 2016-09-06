@@ -1,0 +1,361 @@
+--------------
+/* Nestor Alvarez */
+
+    /* enable warnings! */
+
+use bkorders
+--------------
+
+Query OK, 0 rows affected (0.04 sec)
+
+--------------
+/*  TASK 00 */ 
+select user(), current_date(), version(), @@sql_mode
+--------------
+
+*************************** 1. row ***************************
+        user(): root@localhost
+current_date(): 2016-04-24
+     version(): 5.7.11-log
+    @@sql_mode: STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+1 row in set (0.04 sec)
+
+--------------
+/*  TASK 01 */
+Select CS.cust_id, cust_name_last
+, (Select count(order_id) 
+	From bkorders.order_headers OH 
+    WHERE OH.cust_id = CS.cust_id) AS `number of orders` 
+From bkorders.customers CS 
+WHERE CS.cust_id IN 
+  (
+	Select cust_id 
+    From bkorders.customers CS 
+    WHERE cust_state IN ('NJ', 'MA')
+  )
+GROUP BY CS.cust_id 
+ORDER BY CS.cust_id
+--------------
+
++---------+----------------+------------------+
+| cust_id | cust_name_last | number of orders |
++---------+----------------+------------------+
+|  208950 | Adams          |                2 |
+|  218709 | Bonnard        |               11 |
+|  226656 | Randall        |                3 |
+|  227105 | Kafka          |               22 |
+|  234709 | Brahms         |                3 |
+|  239427 | Marksa         |               12 |
+|  255919 | Milton         |                0 |
+|  258595 | Jobs           |                2 |
+|  259969 | Carlsen        |                4 |
+|  261502 | Hawthorne      |               25 |
++---------+----------------+------------------+
+10 rows in set (0.00 sec)
+
+--------------
+/*  TASK 02 */
+Select DISTINCT 
+	(Select book_id 
+     From bkinfo.books BK 
+     WHERE OD.book_id = BK.book_id) AS `book_id` 
+, 	(Select title 
+	 From bkinfo.books BK 
+     WHERE OD.book_id = BK.book_id) AS `title` 
+From bkorders.order_details OD 
+WHERE book_id IN 
+  (
+	Select book_id 
+    From bkinfo.books BK 
+    WHERE list_price >
+      (
+		Select avg(list_price) * 2 
+		From bkinfo.books 
+      )
+  )
+--------------
+
++---------+--------------------------------------+
+| book_id | title                                |
++---------+--------------------------------------+
+|    1142 | Relational Database Theory           |
+|    1306 | Myths of SQL                         |
+|    1627 | The Ants                             |
+|    1978 | Acoustic Communication in Birds Vol1 |
++---------+--------------------------------------+
+4 rows in set (0.00 sec)
+
+--------------
+/*  TASK 03 */
+Select sum(CASE WHEN QUARTER(order_date) = 1 THEN 1 ELSE 0 END) AS Qrt1
+, sum(CASE WHEN QUARTER(order_date) = 2 THEN 1 ELSE 0 END) AS Qrt2
+, sum(CASE WHEN QUARTER(order_date) = 3 THEN 1 ELSE 0 END) AS Qrt3
+, sum(CASE WHEN QUARTER(order_date) = 4 THEN 1 ELSE 0 END) AS Qrt4
+, count(*) AS AllQuarters 
+From bkorders.order_headers OH 
+WHERE YEAR(order_date) = YEAR(current_date) - 1
+--------------
+
++------+------+------+------+-------------+
+| Qrt1 | Qrt2 | Qrt3 | Qrt4 | AllQuarters |
++------+------+------+------+-------------+
+|   38 |   29 |   59 |   37 |         163 |
++------+------+------+------+-------------+
+1 row in set (0.00 sec)
+
+--------------
+/*  TASK 04 */
+Select DISTINCT cust_id, cust_name_last 
+FROM bkorders.customers CS 
+WHERE EXISTS 
+  (
+	Select cust_id 
+    From bkorders.order_headers OH 
+    WHERE MONTH(order_date) = 1 AND YEAR(order_date) = YEAR(current_date) AND cust_id IN 
+	  (
+		Select cust_id 
+		From bkorders.order_headers OH 
+		WHERE MONTH(order_date) = 2 AND YEAR(order_date) = YEAR(current_date) AND cust_id IN 
+		(
+			Select cust_id 
+			From bkorders.order_headers OH 
+			WHERE MONTH(order_date) = 3 AND YEAR(order_date) = YEAR(current_date) 
+            AND CS.cust_id = OH.cust_id
+		)
+	  )
+  )
+  ORDER BY cust_id
+--------------
+
++---------+----------------+
+| cust_id | cust_name_last |
++---------+----------------+
+|  212921 | Books on Tap   |
+|  234138 | Keats          |
+|  267780 | Shelly         |
+|  272611 | Jarrett        |
++---------+----------------+
+4 rows in set (0.00 sec)
+
+--------------
+/*  TASK 05 */
+Select author_name_first, author_name_last, AR.author_id 
+From bkinfo.authors AR 
+WHERE EXISTS 
+  (
+	Select author_id 
+	From bkinfo.book_authors BA 
+	WHERE AR.author_id = BA.author_id 
+      AND book_id IN
+      (
+		Select book_id 
+        From bkinfo.books BK
+        WHERE book_id NOT IN  
+          (
+			Select BK.book_id 
+            From bkorders.order_details OD
+            WHERE BK.book_id = OD.book_id 
+          )
+      )
+  )
+  ORDER BY AR.author_id
+--------------
+
++-------------------+------------------+-----------+
+| author_name_first | author_name_last | author_id |
++-------------------+------------------+-----------+
+| Tim               | Birkhead         | B1144     |
+| Irwin             | Brodo            | B1244     |
+| Stephen Jay       | Gould            | G5050     |
+| Terry             | Incognito        | I5110     |
+| Susan             | Munch            | M2475     |
+| Willie            | Mammoth          | M3110     |
+| Pete              | Moss             | M4540     |
+| Ken               | Pugh             | P7477     |
+| Sylvia            | Sharnoff         | S2144     |
+| Stephan           | Sharnoff         | S2145     |
+| Katrina           | van Grouw        | V1144     |
+| E.O.              | Wilson           | W3145     |
+| John              | Watson           | W4512     |
++-------------------+------------------+-----------+
+13 rows in set (0.00 sec)
+
+--------------
+/*  TASK 06 */
+Select book_id, title 
+From bkinfo.books BK 
+WHERE book_id IN  
+  (
+	Select book_id 
+	From bkinfo.book_topics BT
+	WHERE BT.book_id = BK.book_id AND 
+	  topic_id IN ('SSRV', 'ORA', 'MySQL') 
+	GROUP BY book_id 
+    HAVING count(book_id) = 2
+  )
+--------------
+
++---------+----------------------------+
+| book_id | title                      |
++---------+----------------------------+
+|    2028 | Mastering Oracle Databases |
+|    2031 | Comparative SQL            |
++---------+----------------------------+
+2 rows in set (0.00 sec)
+
+--------------
+/*  TASK 07 */
+Select order_date, order_id
+, (Select cust_id 
+   From bkorders.customers CS 
+   WHERE CS.cust_id = OH.cust_id
+  ) AS `cust_id` 
+, (Select cust_name_last 
+   From bkorders.customers CS 
+   WHERE CS.cust_id = OH.cust_id
+  ) AS `Customer`
+, Coalesce((Select sum(quantity) 
+   From bkorders.order_details OD 
+   WHERE OD.order_id = OH.order_id
+  ), 0) AS `NumberBooks` 
+, Coalesce((Select sum(order_price) 
+   From bkorders.order_details OD 
+   WHERE OD.order_id = OH.order_id
+  ), 0) AS `OrderCost` 
+From bkorders.order_headers OH 
+WHERE MONTH(order_date) IN (1, 2, 3) AND YEAR(order_date) = YEAR(current_date) - 1 
+ORDER BY order_date
+--------------
+
++------------+----------+---------+-------------+-------------+-----------+
+| order_date | order_id | cust_id | Customer    | NumberBooks | OrderCost |
++------------+----------+---------+-------------+-------------+-----------+
+| 2015-01-18 |    12855 |  221297 | Dodgson     |          12 |    133.99 |
+| 2015-01-20 |    12354 |  290298 | Swift       |           0 |      0.00 |
+| 2015-01-22 |    12961 |  222477 | Rossetti    |           7 |    120.90 |
+| 2015-01-25 |    12900 |  226656 | Randall     |         145 |     55.00 |
+| 2015-01-26 |    12901 |  259906 | Capybara    |          50 |     49.00 |
+| 2015-01-28 |    12962 |  267780 | Shelly      |           8 |    159.90 |
+| 2015-02-12 |    12812 |  227105 | Kafka       |           1 |     26.99 |
+| 2015-02-12 |    12911 |  221297 | Dodgson     |           6 |     92.08 |
+| 2015-02-12 |    13142 |  227105 | Kafka       |           1 |     26.99 |
+| 2015-02-15 |    12814 |  290298 | Swift       |           1 |     45.99 |
+| 2015-02-15 |    12914 |  272787 | Carlson     |          23 |     12.00 |
+| 2015-02-15 |    13144 |  290298 | Swift       |           1 |     45.99 |
+| 2015-02-15 |    13145 |  222477 | Rossetti    |           3 |     43.50 |
+| 2015-02-20 |    12936 |  258595 | Jobs        |           2 |     12.50 |
+| 2015-03-01 |    13840 |  267780 | Shelly      |           2 |     12.00 |
+| 2015-03-02 |    13850 |  234138 | Keats       |           1 |     40.49 |
+| 2015-03-02 |    13841 |  272787 | Carlson     |          50 |     25.00 |
+| 2015-03-03 |    14007 |  276381 | Collins     |          50 |     25.00 |
+| 2015-03-04 |    13001 |  282716 | Biederbecke |           6 |     60.00 |
+| 2015-03-08 |    13224 |  218709 | Bonnard     |           8 |     55.19 |
+| 2015-03-08 |    13852 |  261502 | Hawthorne   |           1 |     40.49 |
+| 2015-03-08 |    14002 |  234138 | Keats       |          23 |     50.50 |
+| 2015-03-08 |    14003 |  200368 | Blake       |           5 |     45.00 |
+| 2015-03-12 |    13007 |  272787 | Carlson     |           4 |    126.19 |
+| 2015-03-12 |    13002 |  282716 | Biederbecke |           6 |    202.13 |
+| 2015-03-13 |    13006 |  272787 | Carlson     |           2 |     51.95 |
+| 2015-03-13 |    13005 |  282716 | Biederbecke |           2 |     51.95 |
+| 2015-03-20 |    15013 |  282716 | Biederbecke |         149 |     71.00 |
+| 2015-03-21 |    15014 |  282716 | Biederbecke |          20 |     51.95 |
+| 2015-03-22 |    15009 |  282716 | Biederbecke |           5 |     39.00 |
+| 2015-03-22 |    15022 |  282716 | Biederbecke |           1 |    199.95 |
+| 2015-03-23 |    15008 |  282716 | Biederbecke |           7 |     57.00 |
+| 2015-03-23 |    15023 |  282716 | Biederbecke |           5 |     92.00 |
+| 2015-03-23 |    15025 |  282716 | Biederbecke |         397 |      4.50 |
+| 2015-03-24 |    15034 |  282716 | Biederbecke |           3 |     45.94 |
+| 2015-03-25 |    15035 |  282716 | Biederbecke |           2 |     90.00 |
+| 2015-03-26 |    15017 |  282716 | Biederbecke |           1 |      4.00 |
+| 2015-03-26 |    15040 |  282716 | Biederbecke |           2 |     51.95 |
++------------+----------+---------+-------------+-------------+-----------+
+38 rows in set (0.00 sec)
+
+--------------
+/*  TASK 08 */
+Select cust_id
+, (Select cust_name_last 
+   From bkorders.customers CS 
+   WHERE CS.cust_id = OH.cust_id
+  ) AS `Customer` 
+From bkorders.order_headers OH 
+WHERE YEAR(order_date) = YEAR(current_date) - 1 AND QUARTER(order_date) IN (1, 2, 3) 
+GROUP BY cust_id 
+HAVING count(cust_id) BETWEEN 3 AND 5 
+ORDER BY cust_id
+--------------
+
++---------+--------------+
+| cust_id | Customer     |
++---------+--------------+
+|  200368 | Blake        |
+|  212921 | Books on Tap |
+|  221297 | Dodgson      |
+|  226656 | Randall      |
+|  234138 | Keats        |
+|  263119 | Jones        |
++---------+--------------+
+6 rows in set (0.00 sec)
+
+--------------
+/*  TASK 09 */
+Select cust_id
+, (Select cust_name_last 
+   From bkorders.customers CS
+   WHERE CS.cust_id = OH.cust_id) AS `Customer` 
+From bkorders.order_headers OH 
+WHERE YEAR(order_date) = YEAR(current_date) - 1 
+GROUP BY cust_id 
+HAVING count(cust_id) >= ALL 
+  (
+	Select count(cust_id) 
+    From bkorders.order_headers OH 
+    WHERE YEAR(order_date) = YEAR(current_date) - 1 
+    GROUP BY cust_id
+  )
+--------------
+
++---------+----------+
+| cust_id | Customer |
++---------+----------+
+|  272787 | Carlson  |
++---------+----------+
+1 row in set (0.00 sec)
+
+--------------
+/*  TASK 10 */
+Select cust_id 
+, (Select cust_name_last 
+   From bkorders.customers CS 
+   WHERE CS.cust_id = OH.cust_id 
+   ) AS `Customer` 
+From bkorders.order_headers OH 
+WHERE YEAR(order_date) = YEAR(current_date) - 1 
+ AND QUARTER(order_date) = 1 
+GROUP BY cust_id 
+HAVING count(order_id) >= 
+  (
+	Select count(order_id) 
+    From bkorders.order_headers 
+	WHERE YEAR(order_date) = YEAR(current_date) 
+	 AND QUARTER(order_date) = 1 
+     AND cust_id = OH.cust_id
+  )
+ORDER BY cust_id
+--------------
+
++---------+-------------+
+| cust_id | Customer    |
++---------+-------------+
+|  200368 | Blake       |
+|  221297 | Dodgson     |
+|  222477 | Rossetti    |
+|  226656 | Randall     |
+|  258595 | Jobs        |
+|  259906 | Capybara    |
+|  272787 | Carlson     |
+|  282716 | Biederbecke |
++---------+-------------+
+8 rows in set (0.00 sec)
+
+Bye

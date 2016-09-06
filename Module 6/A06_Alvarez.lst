@@ -1,0 +1,277 @@
+--------------
+/* Nestor Alvarez */
+
+    /* enable warnings! */
+
+use vets
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+--------------
+/*  TASK 00 */ 
+select user(), current_date(), version(), @@sql_mode
+--------------
+
+*************************** 1. row ***************************
+        user(): root@localhost
+current_date(): 2016-03-09
+     version(): 5.7.10-log
+    @@sql_mode: STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+1 row in set (0.00 sec)
+
+--------------
+/*  TASK 01 */
+Select CL.cl_id, cl_name_last 
+From vets.vt_clients CL 
+LEFT JOIN vets.vt_animals AN ON CL.cl_id = AN.cl_id 
+WHERE an_id IS NULL
+--------------
+
++-------+--------------+
+| cl_id | cl_name_last |
++-------+--------------+
+|   254 | Boston       |
+|  5686 | Biederbecke  |
+|  6897 | Drake        |
+|  7212 | Davis        |
++-------+--------------+
+4 rows in set (0.00 sec)
+
+--------------
+/*  TASK 02 */
+Select cl_id, cl_name_last 
+From vets.vt_clients 
+WHERE cl_id NOT IN 
+ (
+   Select cl_id 
+   From vets.vt_animals 
+ )
+--------------
+
++-------+--------------+
+| cl_id | cl_name_last |
++-------+--------------+
+|   254 | Boston       |
+|  5686 | Biederbecke  |
+|  6897 | Drake        |
+|  7212 | Davis        |
++-------+--------------+
+4 rows in set (0.00 sec)
+
+--------------
+/*  TASK 03 */
+Select cl_id, cl_name_last 
+From vets.vt_clients 
+WHERE cl_id NOT IN 
+ (
+   Select cl_id 
+   From vets.vt_animals 
+   WHERE an_type IN ('crocodilian', 'lizard', 'snake', 'turtle')
+ )
+--------------
+
++-------+--------------+
+| cl_id | cl_name_last |
++-------+--------------+
+|   254 | Boston       |
+|  1825 | Harris       |
+|  3423 | Hawkins      |
+|  3560 | Monk         |
+|  4087 | Turrentine   |
+|  4534 | Montgomery   |
+|  5686 | Biederbecke  |
+|  5689 | Biederbecke  |
+|  5698 | Biederbecke  |
+|  6426 | Hawkins      |
+|  6897 | Drake        |
+|  7212 | Davis        |
++-------+--------------+
+12 rows in set (0.00 sec)
+
+--------------
+/*  TASK 04 */
+Select CL.cl_id, cl_name_last,  
+	CASE 
+		WHEN an_type IS NULL THEN 'no animals' 
+		WHEN an_name IS NULL THEN 'no name' 
+	ELSE an_name 
+    END AS 'an_name', 
+    CASE 
+		WHEN an_type IS NULL THEN 'no animals' 
+	ELSE an_type 
+    END AS 'an_type'
+From vets.vt_clients CL 
+LEFT JOIN vets.vt_animals AN ON CL.cl_id = AN.cl_id
+--------------
+
++-------+--------------+-----------------+------------+
+| cl_id | cl_name_last | an_name         | an_type    |
++-------+--------------+-----------------+------------+
+|   254 | Boston       | no animals      | no animals |
+|   411 | Carter       | Burgess         | dog        |
+|   411 | Carter       | Pinkie          | lizard     |
+|   411 | Carter       | Yoggie          | hedgehog   |
+|  1825 | Harris       | Ursula          | cat        |
+|  1825 | Harris       | Ursula          | dog        |
+|  1825 | Harris       | Triton          | dog        |
+|  1825 | Harris       | Edger           | hedgehog   |
+|  1852 | Dalrymple    | Pop 22          | snake      |
+|  1852 | Dalrymple    | Morris          | olinguito  |
+|  1852 | Dalrymple    | Morton          | olinguito  |
+|  3423 | Hawkins      | Fritz           | porcupine  |
+|  3423 | Hawkins      | Koshka          | dormouse   |
+|  3423 | Hawkins      | Koshka          | hamster    |
+|  3560 | Monk         | Gutsy           | cat        |
+|  3560 | Monk         | Kenny           | bird       |
+|  3560 | Monk         | no name         | bird       |
+|  3560 | Monk         | no name         | bird       |
+|  3560 | Monk         | no name         | bird       |
+|  3560 | Monk         | Mr Peanut       | bird       |
+|  3560 | Monk         | Gutsy           | porcupine  |
+|  3561 | Pickett      | Big Mike        | turtle     |
+|  3561 | Pickett      | 25              | lizard     |
+|  3561 | Pickett      | Gutsy           | snake      |
+|  4087 | Turrentine   | Spot            | dog        |
+|  4087 | Turrentine   | Shadow          | dog        |
+|  4087 | Turrentine   | Buddy           | dog        |
+|  4087 | Turrentine   | Adalwine        | cat        |
+|  4534 | Montgomery   | Baldric         | cat        |
+|  5686 | Biederbecke  | no animals      | no animals |
+|  5689 | Biederbecke  | Manfried        | dog        |
+|  5698 | Biederbecke  | Etta            | cat        |
+|  5698 | Biederbecke  | Manfried        | cat        |
+|  5698 | Biederbecke  | Waldrom         | cat        |
+|  5699 | Biederbecke  | George          | turtle     |
+|  5699 | Biederbecke  | Fritzchen       | porcupine  |
+|  6426 | Hawkins      | Pinkie          | dog        |
+|  6426 | Hawkins      | Calvin Coolidge | dog        |
+|  6897 | Drake        | no animals      | no animals |
+|  7152 | Brubeck      | 3P#_26          | lizard     |
+|  7152 | Brubeck      | 3P#_25          | lizard     |
+|  7212 | Davis        | no animals      | no animals |
++-------+--------------+-----------------+------------+
+42 rows in set (0.00 sec)
+
+--------------
+/*  TASK 05 */
+Select CL.cl_id, cl_name_last, AN.an_id, an_type 
+From vets.vt_clients CL 
+LEFT JOIN vets.vt_animals AN ON CL.cl_id = AN.cl_id 
+LEFT JOIN vets.vt_exam_headers EH ON AN.an_id = EH.an_id 
+WHERE EH.ex_id IS NULL AND AN.an_id IS NOT NULL 
+ORDER BY CL.cl_id, AN.an_id
+--------------
+
++-------+--------------+-------+-----------+
+| cl_id | cl_name_last | an_id | an_type   |
++-------+--------------+-------+-----------+
+|   411 | Carter       | 15165 | dog       |
+|  1825 | Harris       | 16043 | dog       |
+|  1825 | Harris       | 16044 | dog       |
+|  1825 | Harris       | 21002 | hedgehog  |
+|  1852 | Dalrymple    | 21007 | snake     |
+|  1852 | Dalrymple    | 21321 | olinguito |
+|  3560 | Monk         | 11015 | bird      |
+|  3560 | Monk         | 11025 | bird      |
+|  3561 | Pickett      | 21004 | snake     |
+|  4087 | Turrentine   | 21305 | dog       |
+|  4087 | Turrentine   | 21314 | cat       |
+|  4534 | Montgomery   | 21315 | cat       |
+|  5689 | Biederbecke  | 21205 | dog       |
+|  5698 | Biederbecke  | 21318 | cat       |
++-------+--------------+-------+-----------+
+14 rows in set (0.00 sec)
+
+--------------
+/*  TASK 06 */
+Select CL.cl_id, cl_name_last, AN.an_id, an_type 
+From vets.vt_clients CL 
+LEFT JOIN vets.vt_animals AN ON CL.cl_id = AN.cl_id 
+LEFT JOIN vets.vt_exam_headers EH ON AN.an_id = EH.an_id 
+WHERE EH.ex_id IS NULL 
+ORDER BY CL.cl_id, AN.an_id
+--------------
+
++-------+--------------+-------+-----------+
+| cl_id | cl_name_last | an_id | an_type   |
++-------+--------------+-------+-----------+
+|   254 | Boston       |  NULL | NULL      |
+|   411 | Carter       | 15165 | dog       |
+|  1825 | Harris       | 16043 | dog       |
+|  1825 | Harris       | 16044 | dog       |
+|  1825 | Harris       | 21002 | hedgehog  |
+|  1852 | Dalrymple    | 21007 | snake     |
+|  1852 | Dalrymple    | 21321 | olinguito |
+|  3560 | Monk         | 11015 | bird      |
+|  3560 | Monk         | 11025 | bird      |
+|  3561 | Pickett      | 21004 | snake     |
+|  4087 | Turrentine   | 21305 | dog       |
+|  4087 | Turrentine   | 21314 | cat       |
+|  4534 | Montgomery   | 21315 | cat       |
+|  5686 | Biederbecke  |  NULL | NULL      |
+|  5689 | Biederbecke  | 21205 | dog       |
+|  5698 | Biederbecke  | 21318 | cat       |
+|  6897 | Drake        |  NULL | NULL      |
+|  7212 | Davis        |  NULL | NULL      |
++-------+--------------+-------+-----------+
+18 rows in set (0.00 sec)
+
+--------------
+/*  TASK 07 */
+Select CL.cl_id, cl_name_last, AN.an_id, an_type, an_dob 
+From vets.vt_clients CL 
+JOIN vets.vt_animals AN USING (cl_id) 
+WHERE cl_state IN ('NY', 'MA') 
+	AND an_type NOT IN ('cat', 'dog', 'bird')
+--------------
+
++-------+--------------+-------+-----------+------------+
+| cl_id | cl_name_last | an_id | an_type   | an_dob     |
++-------+--------------+-------+-----------+------------+
+|  3560 | Monk         | 12038 | porcupine | 2012-04-29 |
+|  3561 | Pickett      | 15001 | turtle    | 2010-02-02 |
+|  3561 | Pickett      | 17025 | lizard    | 2013-01-10 |
+|  3561 | Pickett      | 21004 | snake     | 2011-05-12 |
+|  7152 | Brubeck      | 17026 | lizard    | 2010-01-10 |
+|  7152 | Brubeck      | 17027 | lizard    | 2010-01-10 |
++-------+--------------+-------+-----------+------------+
+6 rows in set (0.00 sec)
+
+--------------
+/*  TASK 08 */
+Select an_id, an_name 
+From vets.vt_animals 
+JOIN vets.vt_exam_headers USING (an_id) 
+WHERE EXTRACT(Year FROM ex_date) = EXTRACT(Year FROM current_date)
+--------------
+
++-------+-----------+
+| an_id | an_name   |
++-------+-----------+
+| 12035 | Mr Peanut |
+| 15001 | Big Mike  |
+| 16002 | Fritz     |
+| 16002 | Fritz     |
+| 16002 | Fritz     |
+| 17025 | 25        |
+| 17026 | 3P#_26    |
+| 16003 | Ursula    |
+| 15001 | Big Mike  |
+| 15001 | Big Mike  |
+| 15002 | George    |
+| 16002 | Fritz     |
++-------+-----------+
+12 rows in set (0.00 sec)
+
+--------------
+/*  TASK 09 */
+Select SRV.srv_id, srv_list_price, srv_desc, srv_type 
+From vets.vt_exam_details ED
+RIGHT JOIN vets.vt_services SRV ON ED.srv_id = SRV.srv_id 
+WHERE ex_id IS NULL AND srv_list_price > 100.00
+--------------
+
+Empty set (0.00 sec)
+
+Bye

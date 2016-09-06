@@ -1,0 +1,270 @@
+--------------
+/* Nestor Alvarez */
+
+    /* enable warnings! */
+
+use vets
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+--------------
+/*  TASK 00 */ 
+select user(), current_date(), version(), @@sql_mode
+--------------
+
+*************************** 1. row ***************************
+        user(): root@localhost
+current_date(): 2016-02-17
+     version(): 5.7.10-log
+    @@sql_mode: STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+1 row in set (0.03 sec)
+
+--------------
+/*  TASK 01 */
+Select cl_id, an_id, an_type, an_name 
+From vets.vt_animals 
+WHERE an_dob < '2010=01-01'
+--------------
+
++-------+-------+----------+-----------+
+| cl_id | an_id | an_type  | an_name   |
++-------+-------+----------+-----------+
+|  3560 | 12035 | bird     | Mr Peanut |
+|  5699 | 15002 | turtle   | George    |
+|   411 | 15165 | dog      | Burgess   |
+|  6426 | 19845 | dog      | Pinkie    |
+|   411 | 21001 | hedgehog | Yoggie    |
+|  1825 | 21002 | hedgehog | Edger     |
++-------+-------+----------+-----------+
+6 rows in set (0.02 sec)
+
+--------------
+/*  TASK 02 */
+Select ED.ex_id, ex_date, srv_id, ex_fee  
+From vets.vt_animals 
+JOIN vets.vt_exam_headers USING ( an_id ) 
+JOIN vets.vt_exam_details ED USING ( ex_id )  
+WHERE an_type IN ('capybara', 'dormouse', 'hamster', 'porcupine') 
+ORDER BY ex_id, srv_id
+--------------
+
++-------+---------------------+--------+--------+
+| ex_id | ex_date             | srv_id | ex_fee |
++-------+---------------------+--------+--------+
+|  2389 | 2015-05-20 09:45:00 |    110 |  50.00 |
+|  2389 | 2015-05-20 09:45:00 |    523 |  60.00 |
+|  2400 | 2015-06-02 13:00:00 |    461 | 275.00 |
+|  3105 | 2015-10-10 09:15:00 |    110 | 150.00 |
+|  3105 | 2015-10-10 09:15:00 |    523 |  50.50 |
+|  3321 | 2016-02-17 10:45:00 |    748 |   0.00 |
+|  3322 | 2016-02-10 09:15:00 |    748 |  29.50 |
+|  3323 | 2016-02-25 14:30:00 |    524 |  20.00 |
+|  3323 | 2016-02-25 14:30:00 |    687 |  45.00 |
+|  3393 | 2015-12-23 12:15:00 |    748 |  29.50 |
+|  3393 | 2015-12-23 12:15:00 |    749 |   0.00 |
+|  3486 | 2015-12-31 13:00:00 |    461 | 275.00 |
+|  4103 | 2016-01-08 15:30:00 |    461 | 275.00 |
+|  4203 | 2015-08-03 14:30:00 |    524 |  20.00 |
+|  4233 | 2015-09-03 14:30:00 |    524 |  20.00 |
+|  4243 | 2015-06-08 15:30:00 |    461 | 275.00 |
+|  4255 | 2015-07-08 15:30:00 |    461 | 275.00 |
++-------+---------------------+--------+--------+
+17 rows in set (0.09 sec)
+
+--------------
+/*  TASK 03 */
+Select ST.stf_id, concat(stf_name_first, ' ', stf_name_last) AS staff, ex_date 
+From vets.vt_animals 
+JOIN vets.vt_exam_headers EH USING ( an_id ) 
+JOIN vets.vt_staff ST USING ( stf_id ) 
+WHERE an_type NOT IN ('crocodilian', 'lizard', 'snake', 'turtle', 'bird') 
+ORDER BY ex_date
+--------------
+
++--------+----------------+---------------------+
+| stf_id | staff          | ex_date             |
++--------+----------------+---------------------+
+|     38 | Rhoda Wabich   | 2015-04-04 12:30:00 |
+|     38 | Rhoda Wabich   | 2015-04-08 10:30:00 |
+|     38 | Rhoda Wabich   | 2015-04-11 13:00:00 |
+|     38 | Rhoda Wabich   | 2015-04-11 17:00:00 |
+|     38 | Rhoda Wabich   | 2015-05-08 09:15:00 |
+|     38 | Rhoda Wabich   | 2015-05-12 09:15:00 |
+|     38 | Rhoda Wabich   | 2015-05-20 09:45:00 |
+|     38 | Rhoda Wabich   | 2015-06-02 13:00:00 |
+|     38 | Rhoda Wabich   | 2015-06-08 15:30:00 |
+|     38 | Rhoda Wabich   | 2015-07-08 15:30:00 |
+|     15 | Eliza Dolittle | 2015-07-23 08:30:00 |
+|     29 | Sandy Helfen   | 2015-08-03 14:30:00 |
+|     15 | Eliza Dolittle | 2015-08-23 10:30:00 |
+|     29 | Sandy Helfen   | 2015-09-03 14:30:00 |
+|     29 | Sandy Helfen   | 2015-10-10 09:15:00 |
+|     15 | Eliza Dolittle | 2015-11-10 10:30:00 |
+|     15 | Eliza Dolittle | 2015-11-22 09:00:00 |
+|     15 | Eliza Dolittle | 2015-12-01 16:30:00 |
+|     15 | Eliza Dolittle | 2015-12-23 08:30:00 |
+|     29 | Sandy Helfen   | 2015-12-23 12:15:00 |
+|     15 | Eliza Dolittle | 2015-12-26 09:30:00 |
+|     15 | Eliza Dolittle | 2015-12-31 13:00:00 |
+|     15 | Eliza Dolittle | 2016-01-01 16:30:00 |
+|     38 | Rhoda Wabich   | 2016-01-08 15:30:00 |
+|     29 | Sandy Helfen   | 2016-02-10 09:15:00 |
+|     29 | Sandy Helfen   | 2016-02-17 10:45:00 |
+|     29 | Sandy Helfen   | 2016-02-25 14:30:00 |
++--------+----------------+---------------------+
+27 rows in set (0.04 sec)
+
+--------------
+/*  TASK 04 */
+Select cl_id, EH.ex_id, ex_date, srv_id, ex_fee  
+From vets.vt_clients 
+JOIN vets.vt_animals USING ( cl_id ) 
+JOIN vets.vt_exam_headers EH USING ( an_id )
+JOIN vets.vt_exam_details ED USING ( ex_id ) 
+WHERE ex_fee NOT BETWEEN 25 and 200 
+ORDER BY ex_date, srv_id
+--------------
+
++-------+-------+---------------------+--------+--------+
+| cl_id | ex_id | ex_date             | srv_id | ex_fee |
++-------+-------+---------------------+--------+--------+
+|  1852 |  2289 | 2015-04-11 13:00:00 |    523 | 275.00 |
+|  1852 |  2290 | 2015-04-11 17:00:00 |    524 | 275.00 |
+|  3560 |  2400 | 2015-06-02 13:00:00 |    461 | 275.00 |
+|  3423 |  4243 | 2015-06-08 15:30:00 |    461 | 275.00 |
+|  3423 |  4255 | 2015-07-08 15:30:00 |    461 | 275.00 |
+|  5698 |  4612 | 2015-07-23 08:30:00 |    602 | 222.00 |
+|  3423 |  4203 | 2015-08-03 14:30:00 |    524 |  20.00 |
+|  5699 |  4514 | 2015-08-10 10:45:00 |    112 |  15.00 |
+|  3423 |  4233 | 2015-09-03 14:30:00 |    524 |  20.00 |
+|  3561 |  3202 | 2015-10-03 14:30:00 |    341 |  20.00 |
+|  7152 |  3010 | 2015-10-22 10:45:00 |    605 | 535.00 |
+|  1825 |  3552 | 2015-11-10 10:30:00 |    308 |   2.25 |
+|  1825 |  3413 | 2015-12-01 16:30:00 |    308 |   5.00 |
+|  1825 |  3612 | 2015-12-23 08:30:00 |    602 | 222.00 |
+|  3423 |  3393 | 2015-12-23 12:15:00 |    749 |   0.00 |
+|  6426 |  3392 | 2015-12-26 09:30:00 |    400 |  21.00 |
+|  3561 |  3411 | 2015-12-29 14:00:00 |    341 |  20.00 |
+|  3561 |  3412 | 2015-12-30 14:30:00 |    341 |  20.00 |
+|  3423 |  3486 | 2015-12-31 13:00:00 |    461 | 275.00 |
+|  3423 |  4103 | 2016-01-08 15:30:00 |    461 | 275.00 |
+|  3423 |  3321 | 2016-02-17 10:45:00 |    748 |   0.00 |
+|  3423 |  3323 | 2016-02-25 14:30:00 |    524 |  20.00 |
++-------+-------+---------------------+--------+--------+
+22 rows in set (0.01 sec)
+
+--------------
+/*  TASK 05 */
+Select srv_id, srv_list_price, srv_desc, srv_type 
+From vets.vt_services 
+WHERE srv_desc LIKE "%Feline%" 
+AND srv_desc NOT LIKE "%Dental%" 
+ORDER BY srv_type, srv_id
+--------------
+
++--------+----------------+--------------------------------------------+--------------+
+| srv_id | srv_list_price | srv_desc                                   | srv_type     |
++--------+----------------+--------------------------------------------+--------------+
+|    225 |          75.00 | Feline PCR Series                          | medicine     |
+|    551 |          35.50 | First Feline PCR                           | medicine     |
+|    552 |          25.15 | Second Feline PCR                          | medicine     |
+|    553 |          25.85 | Third Feline PCR                           | medicine     |
+|    108 |          80.00 | Routine Exam-Feline                        | office visit |
+|    308 |          45.00 | Followup Exam-Feline                       | office visit |
+|    461 |         275.00 | Feline Behaviour Modification Consultation | treatment    |
++--------+----------------+--------------------------------------------+--------------+
+7 rows in set (0.01 sec)
+
+--------------
+/*  TASK 06 */
+Select DISTINCT cl_id, cl_name_last 
+From vets.vt_clients 
+JOIN vets.vt_animals USING ( cl_id ) 
+WHERE an_type = 'dog' 
+ORDER BY cl_id
+--------------
+
++-------+--------------+
+| cl_id | cl_name_last |
++-------+--------------+
+|   411 | Carter       |
+|  1825 | Harris       |
+|  4087 | Turrentine   |
+|  5689 | Biederbecke  |
+|  6426 | Hawkins      |
++-------+--------------+
+5 rows in set (0.00 sec)
+
+--------------
+/*  TASK 07 */
+Select DISTINCT cl_id, cl_name_last 
+From vets.vt_clients 
+JOIN vets.vt_animals USING ( cl_id ) 
+WHERE an_type NOT IN ('dog') 
+ORDER BY cl_id
+--------------
+
++-------+--------------+
+| cl_id | cl_name_last |
++-------+--------------+
+|   411 | Carter       |
+|  1825 | Harris       |
+|  1852 | Dalrymple    |
+|  3423 | Hawkins      |
+|  3560 | Monk         |
+|  3561 | Pickett      |
+|  4087 | Turrentine   |
+|  4534 | Montgomery   |
+|  5698 | Biederbecke  |
+|  5699 | Biederbecke  |
+|  7152 | Brubeck      |
++-------+--------------+
+11 rows in set (0.00 sec)
+
+--------------
+/*  TASK 08 */
+Select DISTINCT cl_id, cl_name_last 
+From vets.vt_clients 
+JOIN vets.vt_animals USING ( cl_id ) 
+WHERE an_type IN ('capybara', 'dormouse', 'hamster', 'porcupine') 
+ORDER BY cl_id
+--------------
+
++-------+--------------+
+| cl_id | cl_name_last |
++-------+--------------+
+|  3423 | Hawkins      |
+|  3560 | Monk         |
+|  5699 | Biederbecke  |
++-------+--------------+
+3 rows in set (0.00 sec)
+
+--------------
+/*  TASK 09 */
+Select DISTINCT cl_id, cl_name_last 
+From vets.vt_clients 
+JOIN vets.vt_animals USING ( cl_id ) 
+WHERE an_type NOT IN ('capybara', 'dormouse', 'hamster', 'porcupine') 
+ORDER BY cl_id
+--------------
+
++-------+--------------+
+| cl_id | cl_name_last |
++-------+--------------+
+|   411 | Carter       |
+|  1825 | Harris       |
+|  1852 | Dalrymple    |
+|  3560 | Monk         |
+|  3561 | Pickett      |
+|  4087 | Turrentine   |
+|  4534 | Montgomery   |
+|  5689 | Biederbecke  |
+|  5698 | Biederbecke  |
+|  5699 | Biederbecke  |
+|  6426 | Hawkins      |
+|  7152 | Brubeck      |
++-------+--------------+
+12 rows in set (0.00 sec)
+
+Bye
